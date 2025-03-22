@@ -23,7 +23,7 @@ namespace ProductsApi.Data
 
         private static List<Product> LoadProducts()
         {
-            var jsonPath = @"D:\learning\MyGit\designing-apis\DesigningAPIs\ProductsApi\data.json";
+            var jsonPath = @".\data.json";
             using (StreamReader file = File.OpenText(jsonPath))
             {
                 List<Product> products = new List<Product>();
@@ -44,7 +44,7 @@ namespace ProductsApi.Data
 
         private static List<Category> LoadCategories()
         {
-            var jsonPath = @"D:\learning\MyGit\designing-apis\DesigningAPIs\ProductsApi\category.json";
+            var jsonPath = @".\category.json";
             using (StreamReader file = File.OpenText(jsonPath))
             {
                 List<Category> categories = new List<Category>();
