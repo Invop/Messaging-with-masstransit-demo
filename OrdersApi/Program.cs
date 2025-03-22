@@ -1,10 +1,14 @@
+using Contracts.Response;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Orders.Data;
 using Orders.Domain;
 using Orders.Service;
+using OrdersApi.Consumers;
 using OrdersApi.Infrastructure.Mappings;
 using OrdersApi.Service.Clients;
 using OrdersApi.Services;
+using System.Reflection;
 
 namespace OrdersApi
 {
@@ -34,6 +38,34 @@ namespace OrdersApi
 
             builder.Services.AddHttpClient<IProductStockServiceClient, ProductStockServiceClient>();
 
+            builder.Services.AddMassTransit(x =>
+            {
+                x.SetKebabCaseEndpointNameFormatter();
+                // x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("hellos", true));
+                //x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("hellos", false));
+
+                x.AddConsumer<OrderCreatedConsumer>();
+               // x.AddConsumer<VerifyOrderConsumer>();
+
+                // x.AddConsumer<OrderCreatedConsumer, OrderCreatedConsumerDefinition>();
+                x.AddRequestClient<VerifyOrder>();
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    //cfg.Host("rabbitmq://localhost", "/", h =>
+                    //{
+                    //    h.Username("guest");
+                    //    h.Password("guest");
+                    //});
+
+                    cfg.ReceiveEndpoint("order-created", e =>
+                    {
+                        e.ConfigureConsumer<OrderCreatedConsumer>(context);
+
+                    });
+
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
